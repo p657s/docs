@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Documentos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0a1929;
+      color: #f1f5f9;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 24px;
+      color: #10b981;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-card h3 {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #10b981;
+    }
+    
+    .filters {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #f1f5f9;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+    
+    .filter-btn:hover {
+      border-color: #10b981;
+    }
+    
+    .filter-btn.active {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #10b981;
+    }
+    
+    .documents-grid {
+      display: grid;
+      gap: 16px;
+    }
+    
+    .doc-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    
+    .doc-card:hover {
+      border-color: #10b981;
+      transform: translateY(-2px);
+    }
+    
+    .doc-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #10b981;
+      font-size: 24px;
+    }
+    
+    .doc-info {
+      flex: 1;
+    }
+    
+    .doc-info h3 {
+      font-size: 16px;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+    }
+    
+    .doc-info .meta {
+      font-size: 13px;
+      color: #94a3b8;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .doc-info .meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .status-badge.pending {
+      background: rgba(251, 191, 36, 0.1);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    
+    .status-badge.approved {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    
+    .status-badge.rejected {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .doc-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-view {
+      background: #3b82f6;
+      color: #fff;
+    }
+    
+    .btn-view:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+    }
+    
+    .btn-approve {
+      background: #10b981;
+      color: #fff;
+    }
+    
+    .btn-approve:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    
+    .btn-reject {
+      background: #ef4444;
+      color: #fff;
+    }
+    
+    .btn-reject:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #94a3b8;
+    }
+    
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    /* Modal para ver documentos */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: auto;
+      padding: 24px;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .modal-close:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+    
+    .modal-image {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📄 Gestión de Documentos</h1>
+    
+    <!-- Estadísticas -->
+    <div class="stats">
+      <div class="stat-card">
+        <h3>Total</h3>
+        <div class="value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Pendientes</h3>
+        <div class="value" id="statPending">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Aprobados</h3>
+        <div class="value" id="statApproved">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Rechazados</h3>
+        <div class="value" id="statRejected">0</div>
+      </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todos</button>
+      <button class="filter-btn" data-filter="pending">Pendientes</button>
+      <button class="filter-btn" data-filter="approved">Aprobados</button>
+      <button class="filter-btn" data-filter="rejected">Rechazados</button>
+    </div>
+    
+    <!-- Lista de documentos -->
+    <div id="documentsList" class="documents-grid">
+      <div class="loading">⏳ Cargando documentos...</div>
+    </div>
+  </div>
+  
+  <!-- Modal para ver documento -->
+  <div class="modal" id="docModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h2 id="modalTitle">Documento</h2>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+  
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getDatabase, ref, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    
+    // Configuración de Firebase (misma que perfil.html)
+    const docsFirebaseConfig = {
+      apiKey: "AIzaSyCxWMvSgI9EMKqFZArjCDFmZo6H44RVfg8",
+      authDomain: "solicitudes-26a47.firebaseapp.com",
+      databaseURL: "https://solicitudes-26a47-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "solicitudes-26a47",
+      storageBucket: "solicitudes-26a47.firebasestorage.app",
+      messagingSenderId: "768107929470",
+      appId: "1:909971579926:web:4d785ee4b077e40eb84137"
+    };
+    
+    let docsDb = null;
+    let allDocuments = [];
+    let currentFilter = 'all';
+    
+    try {
+      const app = initializeApp(docsFirebaseConfig);
+      docsDb = getDatabase(app);
+      console.log('✅ Firebase conectado');
+    } catch (error) {
+      console.error('❌ Error Firebase:', error);
+    }
+    
+    // Escuchar cambios en tiempo real
+    if (docsDb) {
+      const docsRef = ref(docsDb, 'documents');
+      
+      onValue(docsRef, (snapshot) => {
+        const data = snapshot.val();
+        
+        if (!data) {
+          allDocuments = [];
+          renderDocuments();
+          updateStats();
+          return;
+        }
+        
+        // Convertir objeto a array
+        allDocuments = Object.entries(data).map(([key, value]) => ({
+          key,
+          ...value
+        }));
+        
+        // Ordenar por fecha más reciente
+        allDocuments.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        
+        console.log('📄 Documentos cargados:', allDocuments.length);
+        
+        renderDocuments();
+        updateStats();
+      });
+    }
+    
+    // Renderizar documentos
+    function renderDocuments() {
+      const container = document.getElementById('documentsList');
+      
+      // Filtrar documentos
+      let filtered = allDocuments;
+      if (currentFilter !== 'all') {
+        filtered = allDocuments.filter(doc => doc.status === currentFilter);
+      }
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <h3>No hay documentos</h3>
+            <p>Los documentos subidos aparecerán aquí</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = filtered.map(doc => `
+        <div class="doc-card">
+          <div class="doc-icon">
+            ${getFileIcon(doc.fileType)}
+          </div>
+          
+          <div class="doc-info">
+            <h3>${escapeHtml(doc.fileName)}</h3>
+            <div class="meta">
+              <span>👤 ${escapeHtml(doc.userName)}</span>
+              <span>📧 ${escapeHtml(doc.userEmail)}</span>
+              <span>📅 ${formatDate(doc.uploadDate)}</span>
+              <span>📦 ${formatSize(doc.fileSize)}</span>
+            </div>
+          </div>
+          
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+            <span class="status-badge ${doc.status || 'pending'}">
+              ${getStatusText(doc.status)}
+            </span>
+            
+            <div class="doc-actions">
+              <button class="btn btn-view" onclick="window.viewDocument('${doc.key}')">
+                👁️ Ver
+              </button>
+              ${doc.status !== 'approved' ? `
+                <button class="btn btn-approve" onclick="window.updateDocStatus('${doc.key}', 'approved')">
+                  ✓
+                </button>
+              ` : ''}
+              ${doc.status !== 'rejected' ? `
+                <button class="btn btn-reject" onclick="window.updateDocStatus('${doc.key}', 'rejected')">
+                  ✕
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Actualizar estadísticas
+    function updateStats() {
+      const total = allDocuments.length;
+      const pending = allDocuments.filter(d => d.status === 'pending').length;
+      const approved = allDocuments.filter(d => d.status === 'approved').length;
+      const rejected = allDocuments.filter(d => d.status === 'rejected').length;
+      
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statApproved').textContent = approved;
+      document.getElementById('statRejected').textContent = rejected;
+    }
+    
+    // Ver documento
+    window.viewDocument = function(docKey) {
+      const doc = allDocuments.find(d => d.key === docKey);
+      if (!doc) return;
+      
+      const modal = document.getElementById('docModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+      
+      modalTitle.textContent = doc.fileName;
+      
+      if (doc.fileType.startsWith('image/')) {
+        modalBody.innerHTML = `<img src="${doc.fileBase64}" class="modal-image" alt="${escapeHtml(doc.fileName)}">`;
+      } else if (doc.fileType === 'application/pdf') {
+        modalBody.innerHTML = `
+          <iframe src="${doc.fileBase64}" width="100%" height="600px" style="border:none;border-radius:12px;margin-top:20px;"></iframe>
+          <a href="${doc.fileBase64}" download="${doc.fileName}" class="btn btn-view" style="margin-top:16px;display:inline-flex;">
+            📥 Descargar PDF
+          </a>
+        `;
+      } else {
+        modalBody.innerHTML = `<p>No se puede previsualizar este tipo de archivo.</p>`;
+      }
+      
+      modal.classList.add('active');
+    };
+    
+    // Cerrar modal
+    window.closeModal = function() {
+      document.getElementById('docModal').classList.remove('active');
+    };
+    
+    // Actualizar estado
+    window.updateDocStatus = async function(docKey, newStatus) {
+      if (!docsDb) return;
+      
+      try {
+        const docRef = ref(docsDb, `documents/${docKey}`);
+        await update(docRef, {
+          status: newStatus,
+          reviewedAt: new Date().toISOString()
+        });
+        
+        alert(`✅ Documento ${newStatus === 'approved' ? 'aprobado' : 'rechazado'} correctamente`);
+      } catch (error) {
+        console.error('Error actualizando estado:', error);
+        alert('❌ Error al actualizar estado');
+      }
+    };
+    
+    // Filtros
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderDocuments();
+      });
+    });
+    
+    // Helpers
+    function getFileIcon(fileType) {
+      if (fileType.startsWith('image/')) return '🖼️';
+      if (fileType === 'application/pdf') return '📄';
+      return '📎';
+    }
+    
+    function getStatusText(status) {
+      const texts = {
+        pending: 'Pendiente',
+        approved: 'Aprobado',
+        rejected: 'Rechazado'
+      };
+      return texts[status] || 'Pendiente';
+    }
+    
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    function formatSize(bytes) {
+      if (!bytes) return '-';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
